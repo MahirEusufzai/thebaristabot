@@ -163,7 +163,7 @@ def respondToTweet(tweet):
 		coffee_name = generateName(customer_name_array)	
 		imagePath = createImage(coffee_name)
 		customer_full_name = ' '.join(customer_name_array).title()
-		status_message = "@" + username + " Order for " + customer_full_name + "!"
+		status_message = ". @" + username + " Order for " + customer_full_name + "!"
 		api.update_with_media(imagePath, status=status_message, in_reply_to_status_id=status_id)	
 
 	#store the status id to keep track of responses
