@@ -69,57 +69,6 @@ arpabet = {
 	'W': 'w',
 	'Q': '?',
 }
-ERROR_TYPE_NONE = 0
-ERROR_TYPE_TOO_MANY_WORDS = 1
-ERROR_TYPE_NONALPHA_CHARACTERS = 2
-
-def setupCredentials():
-	CONSUMER_KEY = 'bFwgpbZrOAEt89DF5HWuKqaAU'
-	CONSUMER_SECRET = 'jE1cOeNZDj3BEBd9i4tR8HGvwWhjeAILwRwNFx4Xef724vkR1M'
-	ACCESS_KEY = '877102971724611584-gaavJtmnrA8sU3j40NduZZ3cUNjvPxZ'
-	ACCESS_SECRET = 'UC22YRmqXnbzKPsM5x18MD1k6VKHQxE0R04qhu3iYpkm4'
-
-	auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
-	auth.set_access_token(ACCESS_KEY, ACCESS_SECRET)
-	api = tweepy.API(auth)
-	return api
-
-api = setupCredentials()
-
-class MyStreamListener(tweepy.StreamListener):
-	
-	def on_status(self, tweet):
-		status_id = tweet.id_str #what we reply to 
-		username = tweet.user.screen_name #twitter handle name
-
-		#array of words in message
-		#convert to all lowercase for g2p
-		#remove special characters
-		customer_name_array = [x.lower() for x in tweet.text.split() if x.lower() != '@thebaristabot'] 
-
-		error_type = verifyRequestFormat(customer_name_array)
-		if error_type == ERROR_TYPE_TOO_MANY_WORDS:
-			api.update_status(status= "@" + username + " Sorry, I can only remember up to 3 words!", in_reply_to_status_id=status_id)	
-		elif error_type == ERROR_TYPE_NONALPHA_CHARACTERS:
-			api.update_status(status= "@" + username + " Sorry, I don't know how to handle numbers or special characters!", in_reply_to_status_id=status_id)
-		else:
-			coffee_name = generateName(customer_name_array)	
-			imagePath = createImage(coffee_name)
-			customer_full_name = ' '.join(customer_name_array).title()
-			status_message = "@" + username + " Order for " + customer_full_name + "!"
-			api.update_with_media(imagePath, status=status_message, in_reply_to_status_id=status_id)	
-
-
-def main(args=None):
-
-	runTestCases()
-
-	streamListener = MyStreamListener()
-	stream = tweepy.Stream(auth = api.auth, listener=streamListener)
-	stream.filter(track=['@thebaristabot'])
-
-
-
 
 photo_info = {
 	'image2' : {
@@ -143,6 +92,78 @@ photo_info = {
 	},
 
 }
+ERROR_TYPE_NONE = 0
+ERROR_TYPE_TOO_MANY_WORDS = 1
+ERROR_TYPE_NONALPHA_CHARACTERS = 2
+
+def setupCredentials():
+	CONSUMER_KEY = 'bFwgpbZrOAEt89DF5HWuKqaAU'
+	CONSUMER_SECRET = 'jE1cOeNZDj3BEBd9i4tR8HGvwWhjeAILwRwNFx4Xef724vkR1M'
+	ACCESS_KEY = '877102971724611584-gaavJtmnrA8sU3j40NduZZ3cUNjvPxZ'
+	ACCESS_SECRET = 'UC22YRmqXnbzKPsM5x18MD1k6VKHQxE0R04qhu3iYpkm4'
+
+	auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
+	auth.set_access_token(ACCESS_KEY, ACCESS_SECRET)
+	api = tweepy.API(auth)
+	return api
+
+api = setupCredentials()
+
+class MyStreamListener(tweepy.StreamListener):
+	
+	def on_status(self, tweet):
+		print("reached2")
+
+		respondToTweet(tweet)
+
+
+def main(args=None):
+
+	runTestCases()
+	respondToUnreadMentions()
+	print("reached1")
+	streamListener = MyStreamListener()
+	stream = tweepy.Stream(auth = api.auth, listener=streamListener)
+	stream.filter(track=['@thebaristabot'])
+
+
+def respondToUnreadMentions():
+	target = open('records.txt', 'r')
+	last_responded_mention = target.readline()
+	unresponded_mentions = api.mentions_timeline(since_id=last_responded_mention)
+	for tweet in unresponded_mentions:
+		if tweet.user.screen_name != 'thebaristabot':
+			respondToTweet(tweet)
+
+def respondToTweet(tweet):
+	print("reached3")
+
+	status_id = tweet.id_str #what we reply to 
+	username = tweet.user.screen_name #twitter handle name
+
+	#array of words in message
+	#convert to all lowercase for g2p
+	#remove special characters
+	customer_name_array = [x.lower() for x in tweet.text.split() if x.lower() != '@thebaristabot'] 
+
+	error_type = verifyRequestFormat(customer_name_array)
+	if error_type == ERROR_TYPE_TOO_MANY_WORDS:
+		api.update_status(status= "@" + username + " Sorry, I can only remember up to 3 words!", in_reply_to_status_id=status_id)	
+	elif error_type == ERROR_TYPE_NONALPHA_CHARACTERS:
+		api.update_status(status= "@" + username + " Sorry, I don't know how to handle numbers or special characters!", in_reply_to_status_id=status_id)
+	else:
+		coffee_name = generateName(customer_name_array)	
+		imagePath = createImage(coffee_name)
+		customer_full_name = ' '.join(customer_name_array).title()
+		status_message = "@" + username + " Order for " + customer_full_name + "!"
+		api.update_with_media(imagePath, status=status_message, in_reply_to_status_id=status_id)	
+
+	#store the status id to keep track of responses
+	target = open('records.txt', 'w')
+	target.truncate()
+	target.write(status_id)
+	target.close()
+
 def generateName(customer_name_as_array):
 	cmd = ['g2p-seq2seq', '--interactive', '--model', 'g2p/g2p-seq2seq-cmudict']
 	process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
