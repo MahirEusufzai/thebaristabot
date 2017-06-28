@@ -131,9 +131,9 @@ def main(args=None):
 	runTestCases()
 	respondToUnreadMentions()
 
-	 streamListener = MyStreamListener()
-	 stream = tweepy.Stream(auth = api.auth, listener=streamListener)
-	 stream.filter(track=['@thebaristabot'])
+	streamListener = MyStreamListener()
+	stream = tweepy.Stream(auth = api.auth, listener=streamListener)
+	stream.filter(track=['@thebaristabot'])
 
 
 def respondToUnreadMentions():
