@@ -71,6 +71,17 @@ arpabet = {
 }
 
 photo_info = {
+
+	'image1' : {
+		'font' : "fonts/PermanentMarker.ttf",
+		'font-size' : 70,
+		'url' : "photo_templates/coffee_photo.jpeg",
+		'cup-x-offset': 295,
+		'cup-width' : 370,
+		'y' : 370,
+
+	},
+
 	'image2' : {
 		'font' : "fonts/brownbaglunch.medium.ttf",
 		'font-size' : 150,
@@ -86,7 +97,7 @@ photo_info = {
 		'font-size' : 100,
 		'url' : "photo_templates/coffee_photo4.jpg",
 		'cup-x-offset': 500,
-		'cup-width' : 365,
+		'cup-width' : 355,
 		'y' : 300,
 
 	},
@@ -112,8 +123,6 @@ api = setupCredentials()
 class MyStreamListener(tweepy.StreamListener):
 	
 	def on_status(self, tweet):
-		print("reached2")
-
 		respondToTweet(tweet)
 
 
@@ -121,10 +130,10 @@ def main(args=None):
 
 	runTestCases()
 	respondToUnreadMentions()
-	print("reached1")
-	streamListener = MyStreamListener()
-	stream = tweepy.Stream(auth = api.auth, listener=streamListener)
-	stream.filter(track=['@thebaristabot'])
+
+	 streamListener = MyStreamListener()
+	 stream = tweepy.Stream(auth = api.auth, listener=streamListener)
+	 stream.filter(track=['@thebaristabot'])
 
 
 def respondToUnreadMentions():
@@ -136,7 +145,6 @@ def respondToUnreadMentions():
 			respondToTweet(tweet)
 
 def respondToTweet(tweet):
-	print("reached3")
 
 	status_id = tweet.id_str #what we reply to 
 	username = tweet.user.screen_name #twitter handle name
@@ -200,8 +208,8 @@ def verifyRequestFormat(customer_name_array):
 def createImage(name): 
 
 	#choose random photo
-	curPhotoData = photo_info[random.choice(['image2', 'image4'])]
-	#curPhotoData = photo_info['image2'] #for testing
+	curPhotoData = photo_info[random.choice(['image1', 'image2', 'image4'])]
+	#curPhotoData = photo_info['image1'] #for testing
 	img = Image.open(curPhotoData['url'])
 	img_width, img_height = img.size
 	draw = ImageDraw.Draw(img)
