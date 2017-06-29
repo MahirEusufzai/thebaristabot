@@ -106,6 +106,8 @@ photo_info = {
 ERROR_TYPE_NONE = 0
 ERROR_TYPE_TOO_MANY_WORDS = 1
 ERROR_TYPE_NONALPHA_CHARACTERS = 2
+ERROR_TYPE_WORD_TOO_LONG = 3
+
 
 def setupCredentials():
 	CONSUMER_KEY = 'bFwgpbZrOAEt89DF5HWuKqaAU'
@@ -158,7 +160,9 @@ def respondToTweet(tweet):
 	if error_type == ERROR_TYPE_TOO_MANY_WORDS:
 		api.update_status(status= "@" + username + " Sorry, I can only remember up to 3 words!", in_reply_to_status_id=status_id)	
 	elif error_type == ERROR_TYPE_NONALPHA_CHARACTERS:
-		api.update_status(status= "@" + username + " Sorry, I don't know how to handle numbers or special characters!", in_reply_to_status_id=status_id)
+		api.update_status(status= "@" + username + " Sorry, I don't know how to handle numbers or special characters like puncuation!", in_reply_to_status_id=status_id)
+	elif error_type == ERROR_TYPE_WORD_TOO_LONG:
+		api.update_status(status= "@" + username + " Sorry, one or more of the words is too long for me!", in_reply_to_status_id=status_id)
 	else:
 		coffee_name = generateName(customer_name_array)	
 		imagePath = createImage(coffee_name)
@@ -201,6 +205,8 @@ def verifyRequestFormat(customer_name_array):
 	elif any(not name.isalpha() for name in customer_name_array):
 		return ERROR_TYPE_NONALPHA_CHARACTERS
 
+	elif any(len(name) > 20 for name in customer_name_array):
+		return ERROR_TYPE_WORD_TOO_LONG
 	else:
 		return ERROR_TYPE_NONE
 
