@@ -176,26 +176,47 @@ def respondToTweet(tweet):
 	target.write(status_id)
 	target.close()
 
-def generateName(customer_name_as_array):
+def generateName(customer_name_array):
 	cmd = ['g2p-seq2seq', '--interactive', '--model', 'g2p/g2p-seq2seq-cmudict']
 	process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
 	for i in range(0,3):
 		process.stdout.readline() #read line 3 times to dump the excess output
 
 	#generate name
-	customer_name_g2p_input = '\n'.join(customer_name_as_array)
+	customer_name_g2p_input = '\n'.join(customer_name_array)
 	g2p_output,error = process.communicate(customer_name_g2p_input.encode())
 
 	customer_name_phonetic_array = g2p_output.decode("utf-8").strip('> ').split('> ')
 	full_name_array = []
-	for name in customer_name_phonetic_array:
+	for index, name in enumerate(customer_name_phonetic_array):
 		new_name = ''
 		for phoneme in name.split():
 			new_name = new_name + arpabet[str(phoneme)]
+
+		if new_name == customer_name_array[index]:
+			new_name = applyAdditionalTransform(new_name, name.split())
 		full_name_array.append(new_name)
 
 	full_name_string = ' '.join(full_name_array)
 	return full_name_string
+
+def applyAdditionalTransform(name, phonetic_list):
+	
+	#find all vowels
+	vowel_indices = []
+	for index, letter in enumerate(name):
+		if letter in ['a', 'e', 'i', 'o', 'u']:
+			vowel_indices.append(index)
+
+	#select random vowel and replace with another vowel
+	random_vowel_index = random.choice(vowel_indices)
+
+	new_vowel = random.choice(['a', 'e', 'i', 'o', 'u'])
+	while new_vowel == name[random_vowel_index]:
+		new_vowel = random.choice(['a', 'e', 'i', 'o', 'u'])
+
+	return name[0:random_vowel_index] + new_vowel + name[random_vowel_index+1:]
+
 
 def verifyRequestFormat(customer_name_array):
 	#only evaluate names that are 3 words or less
