@@ -11,6 +11,9 @@ from PIL import ImageDraw, ImageOps
 import pexpect
 from pexpect import spawnu as spawn, EOF
 
+import credentials
+
+
 ##arpabet
 arpabet = {
 	'AO': 'o', 		#off, fall
@@ -108,12 +111,11 @@ ERROR_TYPE_TOO_MANY_WORDS = 1
 ERROR_TYPE_NONALPHA_CHARACTERS = 2
 ERROR_TYPE_WORD_TOO_LONG = 3
 
-
 def setupCredentials():
-	CONSUMER_KEY = 'bFwgpbZrOAEt89DF5HWuKqaAU'
-	CONSUMER_SECRET = 'jE1cOeNZDj3BEBd9i4tR8HGvwWhjeAILwRwNFx4Xef724vkR1M'
-	ACCESS_KEY = '877102971724611584-gaavJtmnrA8sU3j40NduZZ3cUNjvPxZ'
-	ACCESS_SECRET = 'UC22YRmqXnbzKPsM5x18MD1k6VKHQxE0R04qhu3iYpkm4'
+	CONSUMER_KEY = credentials.CONSUMER_KEY
+	CONSUMER_SECRET = credentials.CONSUMER_SECRET
+	ACCESS_KEY = credentials.ACCESS_KEY
+	ACCESS_SECRET = credentials.ACCESS_SECRET
 
 	auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
 	auth.set_access_token(ACCESS_KEY, ACCESS_SECRET)
