@@ -225,7 +225,7 @@ def verifyRequestFormat(customer_name_array):
 	if len(customer_name_array) > 3:
 		return ERROR_TYPE_TOO_MANY_WORDS
 
-	elif any(not re.match("^[A-Za-z]", name) for name in customer_name_array):
+	elif any(not re.match("^[a-zA-Z]+$", name) for name in customer_name_array):
 		return ERROR_TYPE_NONALPHA_CHARACTERS
 
 	elif any(len(name) > 20 for name in customer_name_array):
