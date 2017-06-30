@@ -141,7 +141,7 @@ def main(args=None):
 def respondToUnreadMentions():
 	target = open('records.txt', 'r')
 	last_responded_mention = target.readline()
-	unresponded_mentions = api.mentions_timeline(since_id=last_responded_mention)
+	unresponded_mentions = api.mentions_timeline(since_id=last_responded_mention)[::-1]
 	for tweet in unresponded_mentions:
 		if tweet.user.screen_name != 'thebaristabot':
 			respondToTweet(tweet)
@@ -155,7 +155,7 @@ def respondToTweet(tweet):
 	#convert to all lowercase for g2p
 	#remove special characters
 	customer_name_array = [x.lower() for x in tweet.text.split() if x.lower() != '@thebaristabot'] 
-
+	print(customer_name_array)
 	error_type = verifyRequestFormat(customer_name_array)
 	if error_type == ERROR_TYPE_TOO_MANY_WORDS:
 		api.update_status(status= "@" + username + " Sorry, I can only remember up to 3 words!", in_reply_to_status_id=status_id)	
