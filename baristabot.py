@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import tweepy, sys, random, subprocess
+import tweepy, sys, random, subprocess, re
 from random import randint
 
 import PIL
@@ -225,7 +225,7 @@ def verifyRequestFormat(customer_name_array):
 	if len(customer_name_array) > 3:
 		return ERROR_TYPE_TOO_MANY_WORDS
 
-	elif any(not name.isalpha() for name in customer_name_array):
+	elif any(not re.match("^[A-Za-z]", name) for name in customer_name_array):
 		return ERROR_TYPE_NONALPHA_CHARACTERS
 
 	elif any(len(name) > 20 for name in customer_name_array):
@@ -258,6 +258,11 @@ def createImage(name):
 	img.save(file_path)
 	return file_path
 
+def manuallyCreateImage(name):
+	customer_name_array = [x.lower() for x in name.split()]
+	print(customer_name_array)
+	coffee_name = generateName(customer_name_array)
+	createImage(coffee_name)
 
 def runTestCases():
 
